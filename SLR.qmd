@@ -1,0 +1,88 @@
+---
+title: "Systematic Litterature Review"
+author: "Christophe Benavent et Olivier Caron"
+date: "10 janvier 2023"
+date-format: long
+institute: "Université Dauphine-PSL - DRM - Acss"
+pdf-engine:latex: xelatex
+format: 
+  beamer:
+    toc: true
+    toc-depth : 3
+    toc-title	: "Sommaire"
+    colorlinks: true
+    aspectratio: 54
+    theme: Boadilla
+    fonttheme: serif
+fontsize: 9pt
+slide-level: 2
+execute:
+  echo: true
+  include: true
+  warning: false
+  message: false
+
+bibliography: slr.bib
+---
+
+# Introduction
+
+Systematic reviews are different from traditional literature reviews because they aim to identify all studies that address a specific question.
+
+-   A quantitative dimension because large amoubt of references.
+
+-   Text mining methods because we deal mainly with text.
+
+-   Toward reproducible survey.
+
+Three questions
+
+-   How to constitute the data set ?
+
+-   How analyse Authors ?
+
+-   How to Analyse contents ?
+
+# Data sets
+
+## A selection Process
+
+![Figure 1 : An SLR process source : https://doi.org/10.7717/peerj-cs.695/fig-1](./images/fig-1-full.png)
+
+## Manual extraction
+
+-   playing with zotero and ebsco
+
+-   Look at scopus
+
+## Using API
+
+https://www.bibliometrix.org/home/
+
+https://aurelien-goutsmedt.com/post/extracting-biblio-data-1/
+
+https://github.com/sbegueria/bibliometRics
+
+https://github.com/ropensci/rcrossref : le plus important ?
+
+# Networks analysis
+
+## l'exemple d'un réseau d'auteurs
+
+PMP
+
+## L'exemple d'un réseau de citation
+
+Un petit exemple par olivier
+
+# An Embeddings Approach
+
+On reprend le code DM
+
+# 
+
+Conclusion
+
+-   Une autre organisation de la revue de littérature qui demande un effort collectif
+
+-   
