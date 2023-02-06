@@ -1,0 +1,18 @@
+"0","#| fig.width: 7 "
+"0","#| fig.height: 5 "
+"0","df_scopus<- read_csv(""scopus03022022.csv"") %>% "
+"0","  rename(General=2, Management=3, SocialScience=4) %>%"
+"0","  mutate(Divers= General-Management-SocialScience) %>%"
+"0","  select(-General)%>%"
+"0","  pivot_longer(-year,names_to = ""Domaine"", values_to = ""Fréquence"")"
+"2","[1mRows: [22m[34m36[39m [1mColumns: [22m[34m4[39m"
+"2","[36m--[39m [1mColumn specification[22m [36m--------------------------------------------------------------------------------------------------[39m
+[1mDelimiter:[22m "",""
+[32mdbl[39m (4): year, nb_total_scopus, nb_management, nb_socialscience"
+"2","
+[36mi[39m Use `spec()` to retrieve the full column specification for this data.
+[36mi[39m Specify the column types or set `show_col_types = FALSE` to quiet this message."
+"0","ggplot(df_scopus, aes(x = year, y=Fréquence, group=Domaine))+"
+"0","  geom_area(aes(fill=Domaine), size=1.2, alpha=.7)+"
+"0","  scale_fill_manual(values=c(""brown"",""orange"",""coral""))+"
+"0","  xlim(1995,2025)"

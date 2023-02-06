@@ -14,48 +14,300 @@ format:
     aspectratio: 54
     theme: Boadilla
     fonttheme: serif
-fontsize: 9pt
+    fig-width: 7
+    fig-height: 5
+    fontsize: 8pt
 slide-level: 2
 execute:
-  echo: true
+  echo: false
   include: true
   warning: false
   message: false
-
-bibliography: slr.bib
+bibliography: slrbib.bib
 ---
 
 # Introduction
 
-Systematic reviews are different from traditional literature reviews because they aim to identify all studies that address a specific question.
+Systematic reviews are different from traditional literature reviews because they aim to identify all studies that address a specific question. Typically : "How much high are advertising elasticities at the level of the brand.
 
--   A quantitative dimension because large amoubt of references.
+-   so not only a quantitative dimension cause large amount of references.
 
--   Text mining methods because we deal mainly with text.
+-   Need Text mining methods because we deal mainly with text, focusing on values would be a meta-analyses.
 
--   Toward reproducible survey.
+-   Toward reproducibility criteria.
 
-Three questions
+In this presentation a pragmatic approach through three questions
 
 -   How to constitute the data set ?
 
--   How analyse Authors ?
+-   How analyse Authorship and communities ?
 
 -   How to Analyse contents ?
 
-# Data sets
+## Narratives versus systematic ?
+
+![Narratives, systematic and others LR @stratton_literature_2019](./images/SLRetautres.jpg){width="70%"}
+
+## the prisma framework
+
+A systematic approach to set the article corpus @moher_preferred_2009
+
+![Figure 2 : Prisma Process](./images/prisma1.jpg){width="30%"}
+
+------------------------------------------------------------------------
+
+![Figure 3 : Prisma criteria Preferred Reporting Items for Systematic Reviews and Meta-Analyses of Diagnostic Test Accuracy](./images/prisma2.png){width="80%"}
+
+## White and gray
+
+Not only reviewed papers, but also working paper preprints etc.
+
+## Collecting with IA
+
+-   [Elicit](https://elicit.org/)
+
+-   [Litmaps](https://app.litmaps.com/)
+
+-   [Connected papers](https://www.connectedpapers.com/)
+
+## r environnement
+
+-   r + Rstudio + Quarto/beamer to produce this presentation and doing computations.
+-   You can clone it at github/benaventc.
+-   Main Packages
+
+```{r 00, echo=TRUE}
+library(tidyverse)
+library(Rtsne)
+library(ggrepel)
+library(ggwordcloud)
+library(quanteda)
+library(quanteda.textstats)
+library(quanteda.textmodels)
+library(word2vec)
+library(ape)
+library(cowplot)
+
+theme_set(theme_minimal()+theme(plot.title = element_text(size=12)))
+```
+
+------------------------------------------------------------------------
+
+# Data sets acquisition
+
+-   Through database, with format (Bib, RIS, json), and API.
+
+## Some Sources
+
+-   Google Scholar : harvesting every things
+
+-   Crossref : open source
+
+-   Scopus : elsevier papers
+
+-   Ebsco : business source complete
+
+-   Jstor
+
+-   NBER
+
+-   Arxiv and other Psyxiv ou socioxiv, don't forget HAL,
+
+...
 
 ## A selection Process
 
-![Figure 1 : An SLR process source : https://doi.org/10.7717/peerj-cs.695/fig-1](./images/fig-1-full.png)
+![Figure 4 : An SLR process source : https://doi.org/10.7717/peerj-cs.695/fig-1](./images/fig-1-full.png){width="50%"}
 
-## Manual extraction
+## A short exemple with corpus
 
--   playing with zotero and ebsco
+-   [Scopus](https://www-scopus-com.proxy.bu.dauphine.fr/search/form.uri?display=basic#basic) : TITLE-ABS-KEY ("Systematic literature review") -\> 37,190 documents
+-   First health then computing science and a growing concern for social sciences.
 
--   Look at scopus
+```{r 01}
+#| fig.width: 7 
+#| fig.height: 5 
+df_scopus<- read_csv("scopus03022022.csv") %>% 
+  rename(General=2, Management=3, SocialScience=4) %>%
+  mutate(Divers= General-Management-SocialScience) %>%
+  select(-General)%>%
+  pivot_longer(-year,names_to = "Domaine", values_to = "Fréquence")
+
+
+ggplot(df_scopus, aes(x = year, y=Fréquence, group=Domaine))+
+  geom_area(aes(fill=Domaine), size=1.2, alpha=.7)+
+  scale_fill_manual(values=c("brown","orange","coral"))+
+  xlim(1995,2025)
+  
+
+```
+
+## A small Case study : NLP and marketing
+
+A first case : "NLP in Marketing - state of art and evolutions"
+-   Abstract, title, Keywords =("NLP" | "natural language processing" | "Text-Mining"| "text Analysis") & 
+              Journal =("Marketing" | "Consumer" )
+
+The references are reported manually, through DOI and maintain in the Zotero collection, then export as datafile.
+-   Keywords are corrected and completed manually. 
+
+
+Result : after cleaning -> 104 papers. 
+
+```{r 02}
+df <- read_csv("NLP Marketing and consumer - dataforR.csv") %>% 
+  filter(!is.na(text)) %>%
+  select(1,3:10)
+library(flextable)
+head(df,5)
+
+```
+
+------------------------------------------------------------------------
+
+```{r 03}
+#build the journal table and plot
+t0 <-as.data.frame(table(df$review))
+
+g01<-ggplot(t0,aes(x=reorder(Var1, Freq), y=Freq))+
+  geom_bar(stat="identity", fill="Skyblue")+
+  labs( title="Marketing et NLP : Nombre d'articles par revue et par an", y="Fréquence", x= NULL)+
+  theme(axis.text.y = element_text(size = 7))+
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 40))+
+  coord_flip()
+
+
+t1<-as.data.frame(table(df$year))
+
+#build the yearly table and plot
+
+g02<-ggplot(t1, aes(x=Var1, y=Freq, group=1))+ 
+  geom_smooth(fill="Gold1", alpha=.5)+
+  geom_line(stat="identity", size=1,color="grey") + 
+  labs( caption=paste("Total =",nrow(df)), y=NULL, x=NULL)
+
+plot_grid(g01, g02, labels = c('', ''), label_size = 10, ncol=2,  rel_widths =  c(1,1))
+
+ggsave(filename="quant.jpeg", plot=last_plot(), width = 27, height = 18, units = "cm")
+
+```
+
+------------------------------------------------------------------------
+
+
+```{r 04}
+
+#construction du tableau des mots clés
+
+df_key<- df %>% 
+  mutate(keywords=paste0(keywords," , ",methods, " , ", fields))%>%
+  select(id, keywords)%>%
+  separate(keywords, sep=",", into=c("A1","A2","A3","A4","A5","A6","A7","A8","A9","A10", "A11", "A12", "A13", "A14", "A15", "A16", "A17","A18", "A20", "A21", "A22"))%>%
+  pivot_longer(-id, names_to="Rang", values_to = "keywords") %>%
+  filter(!is.na(keywords)) %>% 
+  mutate(keywords=str_trim(keywords,side ="both"),keywords=tolower(keywords))
+
+
+#recodage manuel des key words
+
+df_key$keywords[df_key$keywords=="ai"]<-"artificial intelligence"
+df_key$keywords[df_key$keywords=="artificial intelligence (ai)"]<-"artificial intelligence"
+df_key$keywords[df_key$keywords=="automated analysis of text"]<-"automated text analysis"
+df_key$keywords[df_key$keywords=="automated textual analysis"]<-"automated text analysis"
+df_key$keywords[df_key$keywords=="natural language processinf"]<-"natural language processing"
+df_key$keywords[df_key$keywords=="natural language processing (nlp)"]<-"natural language processing"
+df_key$keywords[df_key$keywords=="natural language processing (nlp)-based approach"]<-"natural language processing"
+df_key$keywords[df_key$keywords=="nlp tools"]<-"nlp"
+df_key$keywords[df_key$keywords=="online review"]<-"online reviews"
+df_key$keywords[df_key$keywords=="online shopping review"]<-"online reviews"
+df_key$keywords[df_key$keywords=="review"]<-"online reviews"
+df_key$keywords[df_key$keywords=="reviews"]<-"online reviews"
+df_key$keywords[df_key$keywords=="online customer reviews"]<-"online reviews"
+df_key$keywords[df_key$keywords=="review data"]<-"online reviews"
+df_key$keywords[df_key$keywords=="automated text analysys"]<-"automated text analysis"
+df_key$keywords[df_key$keywords=="automated content analysis"]<-"automated text analysis"
+df_key$keywords[df_key$keywords=="word association"]<-"word association analysis"
+df_key$keywords[df_key$keywords=="machine learning"]<-"ml"
+df_key$keywords[df_key$keywords=="latent dirichlet allocation (lda)"]<-"lda"
+df_key$keywords[df_key$keywords=="latent dirichlet allocation"]<-"lda"
+df_key$keywords[df_key$keywords=="latent dirichlet allocation"]<-"lda"
+df_key$keywords[df_key$keywords=="movies"]<-"movie"
+df_key$keywords[df_key$keywords=="consumer-generated content"]<-"user-generated content"
+df_key$keywords[df_key$keywords=="consumer-generated media"]<-"user-generated content"
+df_key$keywords[df_key$keywords=="user generated content"]<-"user-generated content"
+df_key$keywords[df_key$keywords=="user generated data"]<-"user-generated content"
+df_key$keywords[df_key$keywords=="litterature review"]<-"literature review"
+df_key$keywords[df_key$keywords=="application programming interface"]<-"api"
+df_key$keywords[df_key$keywords=="word of mouth"]<-"ewom"
+df_key$keywords[df_key$keywords=="natural language processing"]<-"nlp"
+# a compléter plus systématiquement
+
+foo<-df %>% select(id, year)
+
+foo<-df_key %>% left_join(foo)%>%
+  filter(keywords!="na")%>% 
+  filter(nchar(keywords)>1)%>%
+  group_by(keywords)%>%
+  summarise(n=n(), year=mean(year, na.rm=TRUE))
+
+ggplot(foo%>%filter(n>2),aes(x=reorder(keywords,n), y=n))+
+  geom_bar(stat= "identity", aes(fill=year))+
+  coord_flip()+ 
+  labs( x=NULL, y="Fréquence", title = "Mots clés les plus fréquents")+  
+  scale_fill_gradient2(low="yellow", high="dodgerblue3",   midpoint = 2012)+
+  theme(axis.text.y = element_text(size = 7))
+
+
+```
+
+------------------------------------------------------------------------
+
+```{r 05}
+#| fig.width: 5 
+#| fig.height: 3 
+
+foo2<-df_key %>% 
+  filter(keywords!="na")%>% 
+  filter(nchar(keywords)>0)%>%
+  select(-Rang)%>% 
+  group_by(id,keywords)%>%
+  summarise(n=n())
+
+foo2<- foo2 %>% pivot_wider(id,names_from = "keywords", values_from ="n" )
+
+foo2<- foo2 %>% replace(is.na(.),0)
+
+
+foo3<-t(foo2)
+tsne_out <- Rtsne(foo3,perplexity = 20, dim=2,  check_duplicates = FALSE) # Run TSNE
+tsne_out2<-as.data.frame(tsne_out$Y)
+keywords<-rownames(foo3)
+
+tsne_out3<-cbind(tsne_out2, keywords) 
+tsne_out3<- merge(tsne_out3,foo)
+
+#foo2
+set.seed(123)
+tsne_out3%>% filter(n>0) %>%
+  ggplot(aes(x=V1, y=V2, label=keywords))+
+#  geom_point(aes(size=n), alpha=.5)+
+  geom_text_repel(aes(label=ifelse(n>1,keywords,""),size=n, color=year),  max.overlaps =50)+
+  theme(legend.position="none")+
+  labs(title=" Projection Tsne des mots clés",x=NULL, y=NULL)+  
+  scale_color_gradient2(low="Gold", high="dodgerblue3")
+  
+#ggsave(filename="keywords_map.jpeg", plot=last_plot(), width = 27, height = 18, units = "cm")
+```
 
 ## Using API
+
+The best way to operate is to work through API :
+
+-   it it prevent from errors
+-   it's precise
+-   Standard formats ( bis, ris ...)
+
+### Some libraries
 
 https://www.bibliometrix.org/home/
 
@@ -63,26 +315,129 @@ https://aurelien-goutsmedt.com/post/extracting-biblio-data-1/
 
 https://github.com/sbegueria/bibliometRics
 
-https://github.com/ropensci/rcrossref : le plus important ?
+### focus on
 
-# Networks analysis
+[rcrossref](https://github.com/ropensci/rcrossref) : le plus important ? mais fermé à la liste biblographique cite-by.
 
-## l'exemple d'un réseau d'auteurs
 
-PMP
+```{r 06}
+library(rcrossref)
+
+my_dois<-cr_cn(dois = "10.1007/s11747-022-00840-3", format = "text", style = "apa")
+x<-cr_cn(dois="10.1007/s11747-022-00840-3")
+
+citation_count<-cr_citation_count(doi="10.1007/s11747-022-00840-3")
+
+#abstract<- cr_abstract(doi ='10.1007/s11747-022-00840-3')
+
+```
+
+# Network analysis
+
+-   *igraph* the perfect tool with r
+-   data : $x<-w_i->y$ - coocurences and others distances.
+-   tools :
+    -   layout,
+    -   centrality measurement,
+    -   clique and community detection
+
+## PMP Authorship Analysis
+
+-   PMP case : 40 years of publications - around 1020 papers
+-   Tracking a regime change
+
+![Figure 10 : a change in authorship](./images/auth02-1.png){width="70%"}
+
+------------------------------------------------------------------------
+
+![Author concentration](./images/auth04-1.png){width="70%"}
+
+------------------------------------------------------------------------
+
+![network of authors](./images/auth04e-1.png){width="70%"}
+
+## Le cas NLP et marketing
+
+
+```{r 07}
+foo<- str_split_fixed(df$auteurs, ";", 15) %>% 
+  cbind(df[,1]) %>%
+  pivot_longer(-id, names_to = "X", values_to = "Y") %>%
+  filter(Y!="")%>%
+  mutate(Y=str_trim(Y))%>%
+  mutate(X=1)
+
+foo1<- foo%>%group_by(Y)%>%
+  summarise(n=n())
+
+foo2<-foo%>%
+  pivot_wider(id, names_from = "Y", values_from="X")%>%
+  replace(is.na(.), 0)
+
+foo3<-foo2 %>% select(-id)
+
+tsne_out <- Rtsne(t(foo3),perplexity = 20, dim=2,  check_duplicates = FALSE) # Run TSNE
+tsne_out2<-as.data.frame(tsne_out$Y)
+keywords<-foo1$Y
+
+tsne_out3<-cbind(tsne_out2, keywords) 
+
+#foo2
+set.seed(123)
+tsne_out3%>% 
+  ggplot(aes(x=V1, y=V2, label=keywords))+
+#  geom_point(aes(size=n), alpha=.5)+
+  geom_text_repel(aes(label=keywords),  max.overlaps =50, size=2)+
+  theme(legend.position="none")+
+  labs(title=" Projection Tsne des mots clés",x=NULL, y=NULL)+  
+  scale_color_gradient2(low="Gold", high="dodgerblue3")
+```
+
+
+------------------------------------------------------------------------
+
+
+```{r 08}
+
+library(quanteda.textplots)
+
+foo4<-foo3 %>%
+  as.dfm() %>% fcm()
+
+textplot_network(foo4, min_freq = 0.1, edge_alpha = 0.8, edge_size = 1,   vertex_labelsize = 2)
+```
+
+
+
 
 ## L'exemple d'un réseau de citation
 
+And
+
 Un petit exemple par olivier
 
-# An Embeddings Approach
+# Topic Models and embeddings
 
-On reprend le code DM
+-   Topic model represent the first modern wave of text statistical modeling approach with LDA models @blei_latent_2003.
+-   Embeddings a second wave with @mikolov_efficient_2013
+-   Tranformers is all you need, now.
 
-# 
+## An application of a STM model
 
-Conclusion
+![A STM topic model : keywords and proportion of the content /n (each document has a p probability to belong to the topic k)](./images/tpoic.jpeg){width="70%"}
 
--   Une autre organisation de la revue de littérature qui demande un effort collectif
+------------------------------------------------------------------------
 
--   
+![A STM topic model : time prevalence for each topic identified](./images/prevalence.jpeg){width="70%"}
+
+## An embeddings approach
+
+On reprend le code marketing NLP
+
+# Conclusion
+
+-   Another organisation of the literature review that requires a collective effort.
+
+-   be prepared for the disruption of deep NLP methods
+
+# References
