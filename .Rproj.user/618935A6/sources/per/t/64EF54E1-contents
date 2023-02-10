@@ -1,7 +1,7 @@
 ---
 title: "Systematic Litterature Review"
 author: "Christophe Benavent et Olivier Caron"
-date: "10 janvier 2023"
+date: "today"
 date-format: long
 institute: "Université Dauphine-PSL - DRM - Acss"
 pdf-engine:latex: xelatex
@@ -144,15 +144,13 @@ ggplot(df_scopus, aes(x = year, y=Fréquence, group=Domaine))+
 
 ## A small Case study : NLP and marketing
 
-A first case : "NLP in Marketing - state of art and evolutions"
--   Abstract, title, Keywords =("NLP" | "natural language processing" | "Text-Mining"| "text Analysis") & 
-              Journal =("Marketing" | "Consumer" )
+A first case : "NLP in Marketing - state of art and evolutions" - Abstract, title, Keywords =("NLP" \| "natural language processing" \| "Text-Mining"\| "text Analysis") & Journal =("Marketing" \| "Consumer" )
 
-The references are reported manually, through DOI and maintain in the Zotero collection, then export as datafile.
--   Keywords are corrected and completed manually. 
+-   The references are reported manually, through DOI and maintain in the Zotero collection, then export as datafile.
 
+-   Keywords are corrected and completed manually.
 
-Result : after cleaning -> 104 papers. 
+-   Outcome : after cleaning -\> 104 papers.
 
 ```{r 02}
 df <- read_csv("NLP Marketing and consumer - dataforR.csv") %>% 
@@ -193,7 +191,6 @@ ggsave(filename="quant.jpeg", plot=last_plot(), width = 27, height = 18, units =
 ```
 
 ------------------------------------------------------------------------
-
 
 ```{r 04}
 
@@ -305,20 +302,33 @@ The best way to operate is to work through API :
 
 -   it it prevent from errors
 -   it's precise
--   Standard formats ( bis, ris ...)
+-   it support standard formats (bib, ris ...)
+
+Main sources
+
+-   Crossref
+
+-   Scopus
+
+-   \[Hal\](https://api.archives-ouvertes.fr/docs)
 
 ### Some libraries
 
-https://www.bibliometrix.org/home/
+-   https://www.bibliometrix.org/home/
 
-https://aurelien-goutsmedt.com/post/extracting-biblio-data-1/
+-   https://aurelien-goutsmedt.com/post/extracting-biblio-data-1/
 
-https://github.com/sbegueria/bibliometRics
+-   https://github.com/sbegueria/bibliometRics
 
-### focus on
+-   searchlitr package r
 
-[rcrossref](https://github.com/ropensci/rcrossref) : le plus important ? mais fermé à la liste biblographique cite-by.
+-   https://rdrr.io/github/nfrerebeau/odyssey/f/README.md
 
+-   
+
+### Focus on crossrefs
+
+[rcrossref](https://github.com/ropensci/rcrossref) : le plus important ? mais fermé à la liste bibliographique cite-by.
 
 ```{r 06}
 library(rcrossref)
@@ -334,12 +344,17 @@ citation_count<-cr_citation_count(doi="10.1007/s11747-022-00840-3")
 
 # Network analysis
 
--   *igraph* the perfect tool with r
--   data : $x<-w_i->y$ - coocurences and others distances.
--   tools :
-    -   layout,
-    -   centrality measurement,
-    -   clique and community detection
+![A network and communities](images/networks.png){fig-align="right" width="180"}
+
+-   [*igraph*](https://igraph.org/r/) the perfect tool with r and (an excellent introduction)\[https://kateto.net/netscix2016.html\]
+-   data : $x<- w_i ->y$
+    -   co-occurences and others distances.
+-   Analytical tools :
+    -   Layout ( MDS, KR, ...)
+
+    -   Centrality measurements ( HITS, ...)
+
+    -   Cliques and communities detection
 
 ## PMP Authorship Analysis
 
@@ -357,7 +372,6 @@ citation_count<-cr_citation_count(doi="10.1007/s11747-022-00840-3")
 ![network of authors](./images/auth04e-1.png){width="70%"}
 
 ## Le cas NLP et marketing
-
 
 ```{r 07}
 foo<- str_split_fixed(df$auteurs, ";", 15) %>% 
@@ -393,9 +407,7 @@ tsne_out3%>%
   scale_color_gradient2(low="Gold", high="dodgerblue3")
 ```
 
-
 ------------------------------------------------------------------------
-
 
 ```{r 08}
 
@@ -406,9 +418,6 @@ foo4<-foo3 %>%
 
 textplot_network(foo4, min_freq = 0.1, edge_alpha = 0.8, edge_size = 1,   vertex_labelsize = 2)
 ```
-
-
-
 
 ## L'exemple d'un réseau de citation
 
@@ -438,6 +447,34 @@ On reprend le code marketing NLP
 
 -   Another organisation of the literature review that requires a collective effort.
 
--   be prepared for the disruption of deep NLP methods
+    -   building common code
+
+    -   discussion arena
+
+-   Toward a systematic understanding of bibliometrics metadata
+
+    -   intrinsic : content and localization (Journal, date, institution)
+
+        -   first order information : pure meta data
+
+        -   second order information : outcomes, methods,
+
+    -   extrinsic : how papers related to the paper world
+
+        -   citation index,
+
+        -   co-references
+
+-   Be prepared for the disruption of deep NLP methods :
+
+    -   summarizing
+
+    -   concept extraction
+
+    -   outcome extraction
+
+    -   and more...
 
 # References
+
+There is also a set of full paperr here
