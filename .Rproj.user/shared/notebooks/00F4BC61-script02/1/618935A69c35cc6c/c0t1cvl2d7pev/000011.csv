@@ -1,0 +1,10 @@
+"0","t1<-as.data.frame(table(df$year))"
+"0",""
+"0","g02<-ggplot(t1, aes(x=Var1, y=Freq, group=1))+ "
+"0","  geom_smooth(fill=""Gold1"", alpha=.2)+"
+"0","  geom_line(stat=""identity"", size=1) + "
+"0","  labs( caption=paste(""Total ="",nrow(df)), y=NULL, x=NULL)"
+"0",""
+"0","plot_grid(g01, g02, labels = c('', ''), label_size = 10, ncol=2,  rel_widths =  c(1,1))"
+"2","`geom_smooth()` using method = 'loess' and formula 'y ~ x'
+"

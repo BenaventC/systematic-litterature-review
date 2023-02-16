@@ -1,0 +1,7 @@
+"0",""
+"0","library(quanteda.textplots)"
+"0",""
+"0","foo4<-foo3 %>%"
+"0","  as.dfm() %>% fcm()"
+"0",""
+"0","textplot_network(foo4, min_freq = 0.1, edge_alpha = 0.8, edge_size = 1,   vertex_labelsize = 2)"

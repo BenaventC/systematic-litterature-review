@@ -1,0 +1,6 @@
+"0","t0 <-as.data.frame(prop.table(table(df$review)))"
+"0","g01<-ggplot(t0,aes(x=reorder(Var1, Freq), y=Freq))+"
+"0","  geom_bar(stat=""identity"", fill=""Skyblue"")+"
+"0","  coord_flip()+"
+"0","  labs( title=""Marketing et NLP : Nombre d'articles par revue et par an"", y=""Proportion"", x= NULL)"
+"0","g01"

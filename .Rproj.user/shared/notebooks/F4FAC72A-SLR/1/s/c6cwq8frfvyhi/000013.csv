@@ -1,0 +1,6 @@
+"0",""
+"0","#test sur review"
+"0","lookslike <- predict(model, c(""lda""), type = ""nearest"", top_n = 20)"
+"0","lookslike"
+"1","$lda
+"

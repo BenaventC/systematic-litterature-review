@@ -1,0 +1,8 @@
+"0","#on typologise des documents"
+"0","library(fastcluster) #pour aller plus vite"
+"0",""
+"0","distance<-as.dist(1 - cor(t(emb)))"
+"0",""
+"0","arbre <- hclust(dist(distance), method = ""ward.D"")"
+"0",""
+"0","plot(arbre,  xlab = """", ylab = """", sub = """", axes = FALSE, hang = -1)"
