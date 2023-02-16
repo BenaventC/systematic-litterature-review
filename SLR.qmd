@@ -309,13 +309,6 @@ The best way to operate is to work through API :
 -   it's precise
 -   it support standard formats (bib, ris ...)
 
-Main sources
-
--   Crossref
-
--   Scopus
-
--   \[Hal\](https://api.archives-ouvertes.fr/docs)
 
 ### Some libraries
 
@@ -331,6 +324,7 @@ Main sources
 
 -   [Fulltext package](https://books.ropensci.org/fulltext/)
 
+------------------------------------------------------------------------
 
 ### Focus on crossrefs
 

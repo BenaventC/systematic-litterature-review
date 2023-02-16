@@ -195,6 +195,7 @@ UD <- as.data.frame(UD)
 foo<-UD %>%
   select(doc_id,paragraph_id, sentence, token_id,token,lemma, upos,feats, dep_rel,head_token_id)
 ```
+
 ### embeddings
 
 ```{r vecteur}
@@ -292,7 +293,7 @@ tsne_out3%>%
   scale_color_manual(values=c25) +  
   theme(legend.position = "none") 
 
-ggsave(filename="vector_word.jpeg", plot=last_plot(), width = 27, height = 18, units = "cm")
+ggsave(filename="./images/vector_word.jpeg", plot=last_plot(), width = 27, height = 18, units = "cm")
 
 ```
 ## doc2 vec
@@ -337,7 +338,7 @@ foo<-UD%>%
   summarise(title=first(sentence))%>%
   mutate(sentence2=str_sub(title,1,80))
 
-tsne_out3<-cbind(tsne_out2,group, foo,df[,34]) 
+tsne_out3<-cbind(tsne_out2,group, foo,df[,11]) 
 
 
 
